@@ -158,9 +158,9 @@ class Trainer():
 
         # Load datasets for training and testing
         # Inbuilt datasets available in torchvision (check documentation online)
-        dataset1 = datasets.MNIST('./data/', train=True, download=True,
+        dataset1 = datasets.CelebA('./data/', train=True, download=True,
                                   transform=transform)
-        dataset2 = datasets.MNIST('./data/', train=False,
+        dataset2 = datasets.CelebA('./data/', train=False,
                                   transform=transform)
         train_loader = DataLoader(dataset1, batch_size=FLAGS.batch_size,
                                   shuffle=True, num_workers=4)
