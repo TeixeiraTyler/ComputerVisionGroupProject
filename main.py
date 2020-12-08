@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from ConvNet import ConvNet
+from CNN import ConvNet
 
 # Receive dataset of images
 

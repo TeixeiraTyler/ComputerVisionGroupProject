@@ -7,10 +7,10 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-from torch.utils.tensorboard import SummaryWriter
-from ConvNet import ConvNet
-import argparse
+#from torch.utils.tensorboard import SummaryWriter
+#from ConvNet import ConvNet
 import numpy as np
+from CNN import ConvNet
 
 # import face_recognition
 
@@ -158,9 +158,9 @@ class Trainer():
 
         # Load datasets for training and testing
         # Inbuilt datasets available in torchvision (check documentation online)
-        dataset1 = datasets.CelebA('./data/', train=True, download=True,
+        dataset1 = datasets.CelebA('./data/', split='train', download=True,
                                   transform=transform)
-        dataset2 = datasets.CelebA('./data/', train=False,
+        dataset2 = datasets.CelebA('./data/', split='test', download=True,
                                   transform=transform)
         train_loader = DataLoader(dataset1, batch_size=FLAGS.batch_size,
                                   shuffle=True, num_workers=4)
