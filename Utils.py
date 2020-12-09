@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class Utils():
+
+class Utils:
     def __init__(self):
         variable = 0
 

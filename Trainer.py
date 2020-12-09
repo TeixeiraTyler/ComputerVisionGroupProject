@@ -7,26 +7,21 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-#from torch.utils.tensorboard import SummaryWriter
-#from ConvNet import ConvNet
+# from torch.utils.tensorboard import SummaryWriter
+# from ConvNet import ConvNet
 import numpy as np
 from CNN import ConvNet
 
 # import face_recognition
 
 
-class Trainer():
-    def __init__(self):
-        variable = 0
-
-
-
+class Trainer:
+    def __init__(self, FLAGS):
+        self.FLAGS = FLAGS
 
     # BELOW IS TO BE MODIFIED. GRABBED FROM ANSWER TO PROGRAMMING ASSIGNMENT 1 PART 2.
 
-
-
-    def train(model, device, train_loader, optimizer, criterion, epoch, batch_size):
+    def train(self, model, device, train_loader, optimizer, criterion, epoch, batch_size):
         '''
         Trains the model for an epoch and optimizes it.
         model: The model to train. Should already be in correct device.
@@ -85,8 +80,7 @@ class Trainer():
                                              100. * correct / ((batch_idx + 1) * batch_size)))
         return train_loss, train_acc
 
-
-    def test(model, device, test_loader):
+    def test(self, model, device, test_loader):
         '''
         Tests the model.
         model: The model to train. Should already be in correct device.
@@ -131,8 +125,7 @@ class Trainer():
 
         return test_loss, accuracy
 
-
-    def run_main(FLAGS):
+    def go(self, dataset1, dataset2):
         # Check if cuda is available
         use_cuda = torch.cuda.is_available()
 
@@ -141,40 +134,27 @@ class Trainer():
         print("Torch device selected: ", device)
 
         # Initialize the model and send to device
-        model = ConvNet(FLAGS.mode).to(device)
+        model = ConvNet(self.FLAGS.mode).to(device)
 
         # Initialize the criterion for loss computation
         criterion = nn.CrossEntropyLoss(reduction='mean')
 
         # Initialize optimizer type
-        optimizer = optim.SGD(model.parameters(), lr=FLAGS.learning_rate, weight_decay=1e-7)
+        optimizer = optim.SGD(model.parameters(), lr=self.FLAGS.learning_rate, weight_decay=1e-7)
 
-        # Create transformations to apply to each data sample
-        # Can specify variations such as image flip, color flip, random crop, ...
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.1307,), (0.3081,))
-        ])
-
-        # Load datasets for training and testing
-        # Inbuilt datasets available in torchvision (check documentation online)
-        dataset1 = datasets.CelebA('./data/', split='train', download=True,
-                                  transform=transform)
-        dataset2 = datasets.CelebA('./data/', split='test', download=True,
-                                  transform=transform)
-        train_loader = DataLoader(dataset1, batch_size=FLAGS.batch_size,
+        train_loader = DataLoader(dataset1, batch_size=self.FLAGS.batch_size,
                                   shuffle=True, num_workers=4)
-        test_loader = DataLoader(dataset2, batch_size=FLAGS.batch_size,
+        test_loader = DataLoader(dataset2, batch_size=self.FLAGS.batch_size,
                                  shuffle=False, num_workers=4)
 
         best_accuracy = 0.0
 
         # Run training for n_epochs specified in config
-        for epoch in range(1, FLAGS.num_epochs + 1):
+        for epoch in range(1, self.FLAGS.num_epochs + 1):
             print("\nEpoch: ", epoch)
-            train_loss, train_accuracy = train(model, device, train_loader,
-                                               optimizer, criterion, epoch, FLAGS.batch_size)
-            test_loss, test_accuracy = test(model, device, test_loader)
+            train_loss, train_accuracy = self.train(model, device, train_loader,
+                                               optimizer, criterion, epoch, self.FLAGS.batch_size)
+            test_loss, test_accuracy = self.test(model, device, test_loader)
 
             if test_accuracy > best_accuracy:
                 best_accuracy = test_accuracy
@@ -182,31 +162,3 @@ class Trainer():
         print("accuracy is {:2.2f}".format(best_accuracy))
 
         print("Training and evaluation finished")
-
-
-    if __name__ == '__main__':
-        # Set parameters for Sparse Autoencoder
-        parser = argparse.ArgumentParser('CNN Exercise.')
-        parser.add_argument('--mode',
-                            type=int, default=1,
-                            help='Select mode between 1-5.')
-        parser.add_argument('--learning_rate',
-                            type=float, default=0.1,
-                            help='Initial learning rate.')
-        parser.add_argument('--num_epochs',
-                            type=int,
-                            default=60,
-                            help='Number of epochs to run trainer.')
-        parser.add_argument('--batch_size',
-                            type=int, default=10,
-                            help='Batch size. Must divide evenly into the dataset sizes.')
-        parser.add_argument('--log_dir',
-                            type=str,
-                            default='logs',
-                            help='Directory to put logging.')
-
-        FLAGS = None
-        FLAGS, unparsed = parser.parse_known_args()
-
-        run_main(FLAGS)
-
