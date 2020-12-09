@@ -1,3 +1,4 @@
+import face_recognition
 import numpy as np
 import argparse
 import os
@@ -9,6 +10,7 @@ import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from CNN import ConvNet
+from Recognizer import Recognizer
 from Trainer import Trainer
 
 # Set parameters for Sparse Autoencoder
@@ -41,16 +43,20 @@ transform = transforms.Compose([
     transforms.Normalize((0.1307,), (0.3081,))
 ])
 
+image = face_recognition.load_image_file('./img/image1.jpg')
+recognizer = Recognizer(image)
+recognizer.go()
+
 # Receive dataset of images
-dataset1 = datasets.CelebA('./data/', split='train', download=True,
-                          transform=transform)
-dataset2 = datasets.CelebA('./data/', split='test', download=True,
-                          transform=transform)
+# dataset1 = datasets.CelebA('./data/', split='train', download=True,
+#                           transform=transform)
+# dataset2 = datasets.CelebA('./data/', split='test', download=True,
+#                           transform=transform)
 
 # Train network
-trainer = Trainer(FLAGS)
-trainer.go(dataset1, dataset2)
+# trainer = Trainer(FLAGS)
+# trainer.go(dataset1, dataset2)
 
 # Show/plot results
 plt.plot()
-plt.show()
+# plt.show()
