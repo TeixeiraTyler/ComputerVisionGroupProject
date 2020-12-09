@@ -158,9 +158,11 @@ class Trainer():
 
         # Load datasets for training and testing
         # Inbuilt datasets available in torchvision (check documentation online)
-        dataset1 = datasets.CelebA('./data/', split='train', download=True,
+        # NOTE: Change '.\\' to './' if using a Unix system. If on Windows, do not modify.
+        # NOTE: Run this script while in the directory that it is located in
+        dataset1 = datasets.CelebA('.\\', split='train', download=False,
                                   transform=transform)
-        dataset2 = datasets.CelebA('./data/', split='test', download=True,
+        dataset2 = datasets.CelebA('.\\', split='test', download=False,
                                   transform=transform)
         train_loader = DataLoader(dataset1, batch_size=FLAGS.batch_size,
                                   shuffle=True, num_workers=4)
