@@ -1,6 +1,7 @@
 #import face_recognition
 import numpy as np
 import argparse
+import random
 import os
 import torch
 import torch.nn as nn
@@ -8,10 +9,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
-from torch.utils.data import SubsetRandomSampler
 from torchvision import datasets, transforms
 from CNN import ConvNet
-#from Recognizer import Recognizer
 from Trainer import Trainer
 
 if __name__ == '__main__':
@@ -37,7 +36,6 @@ if __name__ == '__main__':
 
     FLAGS = None
     FLAGS, unparsed = parser.parse_known_args()
-    #FLAGS.mode = 5
 
     # Create transformations to apply to each data sample
     # Can specify variations such as image flip, color flip, random crop, ...
@@ -46,26 +44,18 @@ if __name__ == '__main__':
         transforms.Normalize((0.1307,), (0.3081,))
     ])
 
-    # image = face_recognition.load_image_file('./img/image1.jpg')
-    # recognizer = Recognizer(image)
-    # recognizer.go()
-
     # Receive dataset of images
     dataset1 = datasets.CelebA('.\\', split='train', download=False,
                               transform=transform)
     dataset2 = datasets.CelebA('.\\', split='test', download=False,
                               transform=transform)
-    
-    # Retype dataset one-hot enocded
+
+    # Retype dataset for compatability; subsample it for faster runtime
     dataset1.attr = dataset1.attr.type(dtype=torch.FloatTensor)
     dataset2.attr = dataset1.attr.type(dtype=torch.FloatTensor)
-    dataset1 = torch.utils.data.Subset(dataset1, range(0, 500, 2))
-    dataset2 = torch.utils.data.Subset(dataset2, range(0, 500, 2))
+    dataset1 = torch.utils.data.Subset(dataset1, range(0, 100000, 100))
+    dataset2 = torch.utils.data.Subset(dataset2, range(0, 10000, 20))
 
     # Train network
     trainer = Trainer(FLAGS)
     trainer.go(dataset1, dataset2)
-
-    # Show/plot results
-    plt.plot()
-    # plt.show()

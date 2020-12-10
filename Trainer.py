@@ -1,4 +1,6 @@
 from __future__ import print_function
+import matplotlib
+import matplotlib.pyplot as plt
 import argparse
 import os
 import torch
@@ -7,8 +9,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-# from torch.utils.tensorboard import SummaryWriter
-# from ConvNet import ConvNet
 import numpy as np
 from CNN import ConvNet
 
@@ -21,7 +21,8 @@ class Trainer:
 
     # BELOW IS TO BE MODIFIED. GRABBED FROM ANSWER TO PROGRAMMING ASSIGNMENT 1 PART 2.
 
-    def train(self, model, device, train_loader, optimizer, criterion, epoch, batch_size):
+    def train(self, model, device, train_loader, optimizer, criterion, epoch, batch_size,
+                indices, train_losses, train_accuracies):
         '''
         Trains the model for an epoch and optimizes it.
         model: The model to train. Should already be in correct device.
@@ -53,9 +54,7 @@ class Trainer:
 
             # Do forward pass for current set of data
             output = model(data)
-            #print(output)
-
-            # ======================================================================
+            
             # Compute loss based on criterion
             loss = criterion(output, target)
 
@@ -68,9 +67,7 @@ class Trainer:
             # Optimize model parameters based on learning rate and gradient
             optimizer.step()
 
-            # Get predicted index by selecting maximum log-probability
-            #output.data = output.data.view(400, 1)
-            #pred = output.argmax(dim=1, keepdim=True)
+            # Get predicted index by rounding the sigmoid output to 0 or 1
             pred = torch.round(output)
             #print(pred)
 
@@ -83,9 +80,15 @@ class Trainer:
         print('Train set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
             float(np.mean(losses)), correct, (batch_idx + 1) * batch_size * 40,
                                              100. * correct / ((batch_idx + 1) * 40 * batch_size)))
+
+        # Track total training losses and accuracies per epoch for later plotting
+        train_losses.append(train_loss)
+        train_accuracies.append(train_acc)
+        indices.append(epoch)
+
         return train_loss, train_acc
 
-    def test(self, model, device, test_loader):
+    def test(self, model, device, test_loader, indices, test_losses, test_accuracies):
         '''
         Tests the model.
         model: The model to train. Should already be in correct device.
@@ -109,9 +112,7 @@ class Trainer:
                 # Predict for data by doing forward pass
                 output = model(data)
 
-                # ======================================================================
                 # Compute loss based on same criterion as training
-                #loss = nn.BCEWithLogitsLoss(output, target)
                 loss = criterion(output, target)
 
                 # Append loss to overall test loss
@@ -130,6 +131,10 @@ class Trainer:
         print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
             test_loss, correct, 40*(len(test_loader.dataset)), accuracy))
 
+        # Track total testing losses and accuracies per epoch for later plotting
+        test_losses.append(test_loss)
+        test_accuracies.append(accuracy)
+
         return test_loss, accuracy
 
     def go(self, dataset1, dataset2):
@@ -139,24 +144,30 @@ class Trainer:
         # Set proper device based on cuda availability
         device = torch.device("cuda" if use_cuda else "cpu")
         print("Torch device selected: ", device)
-        
-        # Forcing program to choose model_5
-        #self.FLAGS.mode = 5
+
+        # Set indices and other variables to plot losses and accuracies
+        indices = []
+        train_losses = []
+        train_accuracies =[]
+        test_losses = []
+        test_accuracies = []
         
         # Initialize the model and send to device
         model = ConvNet(self.FLAGS.mode).to(device)
-        #print(model.type())
 
         # Initialize the criterion for loss computation
         criterion = nn.BCEWithLogitsLoss()
 
         # Initialize optimizer type
-        optimizer = optim.SGD(model.parameters(), lr=self.FLAGS.learning_rate, weight_decay=1e-7)
+        optimizer = optim.Adam(model.parameters())
+                                    #lr=self.FLAGS.learning_rate, weight_decay=1e-7)
 
-        train_loader = DataLoader(dataset1, batch_size=self.FLAGS.batch_size,
-                                  shuffle=True, num_workers=4)
-        test_loader = DataLoader(dataset2, batch_size=self.FLAGS.batch_size,
-                                 shuffle=False, num_workers=4)
+        train_loader = DataLoader(dataset1,
+                                    batch_size=self.FLAGS.batch_size,
+                                    shuffle=True, num_workers=4)
+        test_loader = DataLoader(dataset2,
+                                    batch_size=self.FLAGS.batch_size,
+                                    shuffle=False, num_workers=4)
 
         best_accuracy = 0.0
 
@@ -164,12 +175,25 @@ class Trainer:
         for epoch in range(1, self.FLAGS.num_epochs + 1):
             print("\nEpoch: ", epoch)
             train_loss, train_accuracy = self.train(model, device, train_loader,
-                                               optimizer, criterion, epoch, self.FLAGS.batch_size)
-            test_loss, test_accuracy = self.test(model, device, test_loader)
+                                               optimizer, criterion, epoch, self.FLAGS.batch_size,
+                                               indices, train_losses, train_accuracies)
+            test_loss, test_accuracy = self.test(model, device, test_loader,
+                                                indices, test_losses, test_accuracies)
 
             if test_accuracy > best_accuracy:
                 best_accuracy = test_accuracy
 
+        # Print best accuracy results
         print("accuracy is {:2.2f}".format(best_accuracy))
-
         print("Training and evaluation finished")
+
+        # Plot training and testing data
+        fig, (ax1, ax2) = plt.subplots(2)
+        fig.suptitle('CelebA Training and Testing Results')
+        ax1.set(xlabel='Epoch', ylabel='Loss')
+        ax1.plot(indices, train_losses, color='blue')
+        ax1.plot(indices, test_losses, color='red')
+        ax2.set(xlabel='Epoch', ylabel='Accuracy')
+        ax2.plot(indices, train_accuracies, color='blue')
+        ax2.plot(indices, test_accuracies, color='red')
+        plt.show()
