@@ -9,35 +9,70 @@ class ConvNet(nn.Module):
         super(ConvNet, self).__init__()
 
         # Define various layers here, such as in the tutorial example
-        self.conv1 = nn.Conv2d(1, 40, 5, 1)
-        self.conv2 = nn.Conv2d(40, 40, 5, 1)
-
-        self.fc1 = nn.Linear(28 * 28, 100)
-        self.fc2 = nn.Linear(100, 10)
+        self.conv1 = nn.Conv2d(in_channels=3,
+                                out_channels=64,
+                                kernel_size=5,
+                                stride=2)
+        self.conv2 = nn.Conv2d(in_channels=64, 
+                                out_channels=128,
+                                kernel_size=5,
+                                stride=2)
 
         self.fc_m2 = nn.Linear(640, 100)
 
         self.fc_m4 = nn.Linear(100, 100)
 
-        self.fc_m5_a = nn.Linear(640, 1000)
-        self.fc_m5_b = nn.Linear(1000, 1000)
-        self.fc_m5_c = nn.Linear(1000, 10)
+        self.fc1 = nn.Linear(15360, 10000)
+        self.fc2 = nn.Linear(10000, 8000)
+        self.fc3 = nn.Linear(8000, 40)
 
         self.dropout1 = nn.Dropout2d(0.5)
 
-        self.forward = self.model_1
+        #self.forward = self.model_1
+
+        # Choose which CNN model to use
+        if mode == 1:
+            self.forward = self.model_1
+        elif mode == 2:
+            self.forward = self.model_2
+        elif mode == 3:
+            self.forward = self.model_3
+        elif mode == 4:
+            self.forward = self.model_4
+        elif mode == 5:
+            self.forward = self.model_5
+        else: 
+            print("Invalid mode ", mode, "selected. Select between 1-5")
+            exit(0)
 
 
     # BELOW ARE THE MODELS FROM THE ANSWER TO PROGRAMMING ASSIGNMENT 1 PART 2
 
-    # Baseline model. step 1
+    # The main model I am testing. Similar to model_5 from original assignment. Ignore model_2 through model_5
     def model_1(self, X):
         # ======================================================================
         # One hidden layer
 
+        X = F.relu(self.conv1(X))
+        print(X.size())
+        X = F.max_pool2d(X, 2)
+        print(X.size())
+        X = F.relu(self.conv2(X))
+        print(X.size())
+        X = F.max_pool2d(X, 2)
+        print(X.size())
         X = torch.flatten(X, start_dim=1)
-        X = torch.sigmoid(self.fc1(X))
-        X = torch.sigmoid(self.fc2(X))
+        print(X.size())
+        X = F.relu(self.fc1(X))
+        print(X.size())
+        X = self.dropout1(X)
+        print(X.size())
+        X = F.relu(self.fc2(X))
+        print(X.size())
+        X = self.dropout1(X)
+        print(X.size())
+        X = torch.sigmoid(self.fc3(X))
+        print(X.size())
 
         return X
 
