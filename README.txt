@@ -22,3 +22,5 @@ torchvision
 argparse
 matplotlib
 numpy
+
+Code from Programming Assignment 1 part 2 was used as a foundation for the training, testing, and design of our CNN
