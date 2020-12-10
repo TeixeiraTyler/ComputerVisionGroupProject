@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     # Retype dataset for compatability; subsample it for faster runtime
     dataset1.attr = dataset1.attr.type(dtype=torch.FloatTensor)
-    dataset2.attr = dataset1.attr.type(dtype=torch.FloatTensor)
+    dataset2.attr = dataset2.attr.type(dtype=torch.FloatTensor)
     # dataset1 = torch.utils.data.Subset(dataset1, range(0, 100000, 100))
     # dataset2 = torch.utils.data.Subset(dataset2, range(0, 10000, 20))
 
