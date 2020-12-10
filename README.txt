@@ -12,6 +12,9 @@ Additional arguments (optional):
 --batch_size (default 10)
 --log_dir (default 'logs')
 
+WARNING: RUN TIME MAY BE EXCESSIVELY LONG WITH THE FULL DATASET
+2 commented out lines exist in main.py that create a subsample of the dataset. These can be uncommented for use.
+Lines 43 & 44
 
 Needed libraries (using most stable versions as of December 10, 2020):
 torch
