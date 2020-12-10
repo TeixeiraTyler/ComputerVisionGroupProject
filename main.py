@@ -32,9 +32,9 @@ if __name__ == '__main__':
     ])
 
     # Receive dataset of images
-    dataset1 = datasets.CelebA('.\\', split='train', download=False,
+    dataset1 = datasets.CelebA('.\\', split='train', download=True,
                               transform=transform)
-    dataset2 = datasets.CelebA('.\\', split='test', download=False,
+    dataset2 = datasets.CelebA('.\\', split='test', download=True,
                               transform=transform)
 
     # Retype dataset for compatability; subsample it for faster runtime
