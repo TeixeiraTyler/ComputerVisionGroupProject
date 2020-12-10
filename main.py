@@ -56,6 +56,10 @@ if __name__ == '__main__':
     dataset2 = datasets.CelebA('.\\', split='test', download=False,
                               transform=transform)
     #dataset2 = torch.utils.data.Subset(dataset2, range(0, 10, 2))
+    
+    # Retype dataset one-hot enocded
+    dataset1.attr = dataset1.attr.type(dtype=torch.FloatTensor)
+    dataset2.attr = dataset1.attr.type(dtype=torch.FloatTensor)
 
     # Train network
     trainer = Trainer(FLAGS)

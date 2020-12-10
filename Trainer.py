@@ -138,6 +138,7 @@ class Trainer:
         
         # Initialize the model and send to device
         model = ConvNet(self.FLAGS.mode).to(device)
+        #print(model.type())
 
         # Initialize the criterion for loss computation
         criterion = nn.BCEWithLogitsLoss()
