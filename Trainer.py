@@ -67,6 +67,7 @@ class Trainer:
             optimizer.step()
 
             # Get predicted index by selecting maximum log-probability
+            output.data = output.data.view(400, 1)
             pred = output.argmax(dim=1, keepdim=True)
 
             # ======================================================================
@@ -75,9 +76,10 @@ class Trainer:
 
         train_loss = float(np.mean(losses))
         train_acc = correct / ((batch_idx + 1) * batch_size)
-        print('Train set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
-            float(np.mean(losses)), correct, (batch_idx + 1) * batch_size,
-                                             100. * correct / ((batch_idx + 1) * batch_size)))
+        print(train_acc)
+        print('Train set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
+            float(np.mean(losses)), correct, (batch_idx + 1) * batch_size * 40,
+                                             100. * correct / ((batch_idx + 1) * 40 * batch_size)))
         return train_loss, train_acc
 
     def test(self, model, device, test_loader):
@@ -105,7 +107,8 @@ class Trainer:
 
                 # ======================================================================
                 # Compute loss based on same criterion as training
-                loss = F.cross_entropy(output, target, reduction='mean')
+                loss = nn.BCEWithLogitsLoss(output, target)
+                # loss = nn.BCEWithLogitsLoss()
 
                 # Append loss to overall test loss
                 losses.append(loss.item())
@@ -118,10 +121,10 @@ class Trainer:
                 correct += pred.eq(target.view_as(pred)).sum().item()
 
         test_loss = float(np.mean(losses))
-        accuracy = 100. * correct / len(test_loader.dataset)
+        accuracy = 100. * correct / (len(test_loader.dataset))
 
-        print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
-            test_loss, correct, len(test_loader.dataset), accuracy))
+        print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
+            test_loss, correct, 40*(len(test_loader.dataset)), accuracy))
 
         return test_loss, accuracy
 

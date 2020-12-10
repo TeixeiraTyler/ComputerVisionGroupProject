@@ -8,6 +8,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
+from torch.utils.data import SubsetRandomSampler
 from torchvision import datasets, transforms
 from CNN import ConvNet
 #from Recognizer import Recognizer
@@ -52,14 +53,14 @@ if __name__ == '__main__':
     # Receive dataset of images
     dataset1 = datasets.CelebA('.\\', split='train', download=False,
                               transform=transform)
-    #dataset1 = torch.utils.data.Subset(dataset1, range(0, 10, 2))
     dataset2 = datasets.CelebA('.\\', split='test', download=False,
                               transform=transform)
-    #dataset2 = torch.utils.data.Subset(dataset2, range(0, 10, 2))
     
     # Retype dataset one-hot enocded
     dataset1.attr = dataset1.attr.type(dtype=torch.FloatTensor)
     dataset2.attr = dataset1.attr.type(dtype=torch.FloatTensor)
+    dataset1 = torch.utils.data.Subset(dataset1, range(0, 500, 2))
+    dataset2 = torch.utils.data.Subset(dataset2, range(0, 500, 2))
 
     # Train network
     trainer = Trainer(FLAGS)
