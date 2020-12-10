@@ -43,15 +43,17 @@ class Trainer:
         # Iterate over entire training samples (1 epoch)
         for batch_idx, batch_sample in enumerate(train_loader):
             data, target = batch_sample
+            #print(target)
 
             # Push data/label to correct device
             data, target = data.to(device), target.to(device)
 
-            # Reset optimizer gradients. Avoids grad accumulation (accumulation used in RNN).
+            # Reset optimizer gradients. Avoids grad accumulation.
             optimizer.zero_grad()
 
             # Do forward pass for current set of data
             output = model(data)
+            #print(output)
 
             # ======================================================================
             # Compute loss based on criterion
@@ -67,16 +69,17 @@ class Trainer:
             optimizer.step()
 
             # Get predicted index by selecting maximum log-probability
-            output.data = output.data.view(400, 1)
-            pred = output.argmax(dim=1, keepdim=True)
+            #output.data = output.data.view(400, 1)
+            #pred = output.argmax(dim=1, keepdim=True)
+            pred = torch.round(output)
+            #print(pred)
 
             # ======================================================================
             # Count correct predictions overall
             correct += pred.eq(target.view_as(pred)).sum().item()
 
         train_loss = float(np.mean(losses))
-        train_acc = correct / ((batch_idx + 1) * batch_size)
-        print(train_acc)
+        train_acc = (100. * correct) / ((batch_idx + 1) * batch_size * 40)
         print('Train set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
             float(np.mean(losses)), correct, (batch_idx + 1) * batch_size * 40,
                                              100. * correct / ((batch_idx + 1) * 40 * batch_size)))
@@ -95,6 +98,7 @@ class Trainer:
 
         losses = []
         correct = 0
+        criterion = nn.BCEWithLogitsLoss()
 
         # Set torch.no_grad() to disable gradient computation and backpropagation
         with torch.no_grad():
@@ -107,21 +111,21 @@ class Trainer:
 
                 # ======================================================================
                 # Compute loss based on same criterion as training
-                loss = nn.BCEWithLogitsLoss(output, target)
-                # loss = nn.BCEWithLogitsLoss()
+                #loss = nn.BCEWithLogitsLoss(output, target)
+                loss = criterion(output, target)
 
                 # Append loss to overall test loss
                 losses.append(loss.item())
 
                 # Get predicted index by selecting maximum log-probability
-                pred = output.argmax(dim=1, keepdim=True)
+                pred = torch.round(output)
 
                 # ======================================================================
                 # Count correct predictions overall
                 correct += pred.eq(target.view_as(pred)).sum().item()
 
         test_loss = float(np.mean(losses))
-        accuracy = 100. * correct / (len(test_loader.dataset))
+        accuracy = (100. * correct) / (40*(len(test_loader.dataset)))
 
         print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
             test_loss, correct, 40*(len(test_loader.dataset)), accuracy))
