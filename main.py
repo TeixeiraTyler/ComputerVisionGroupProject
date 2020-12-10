@@ -1,13 +1,9 @@
-#import face_recognition
 import numpy as np
 import argparse
-import random
-import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from CNN import ConvNet
@@ -16,15 +12,9 @@ from Trainer import Trainer
 if __name__ == '__main__':
     # Set parameters for Sparse Autoencoder
     parser = argparse.ArgumentParser('CNN Exercise.')
-    parser.add_argument('--mode',
-                        type=int, default=1,
-                        help='Select mode between 1-5.')
-    parser.add_argument('--learning_rate',
-                        type=float, default=0.1,
-                        help='Initial learning rate.')
     parser.add_argument('--num_epochs',
                         type=int,
-                        default=60,
+                        default=10,
                         help='Number of epochs to run trainer.')
     parser.add_argument('--batch_size',
                         type=int, default=10,

@@ -1,25 +1,18 @@
-from __future__ import print_function
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-import argparse
-import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
-import numpy as np
 from CNN import ConvNet
 
-# import face_recognition
-
-
+# Trains and tests model, and outputs losses and accuracies
 class Trainer:
     def __init__(self, FLAGS):
         self.FLAGS = FLAGS
-
-    # BELOW IS TO BE MODIFIED. GRABBED FROM ANSWER TO PROGRAMMING ASSIGNMENT 1 PART 2.
 
     def train(self, model, device, train_loader, optimizer, criterion, epoch, batch_size,
                 indices, train_losses, train_accuracies):
@@ -34,7 +27,7 @@ class Trainer:
         batch_size: Batch size to be used.
         '''
 
-        # Set model to train mode before each epoch
+        # Set model to train before each epoch
         model.train()
 
         # Empty list to store losses
@@ -64,17 +57,16 @@ class Trainer:
             # Store loss
             losses.append(loss.item())
 
-            # Optimize model parameters based on learning rate and gradient
+            # Optimize model parameters
             optimizer.step()
 
             # Get predicted index by rounding the sigmoid output to 0 or 1
             pred = torch.round(output)
-            #print(pred)
 
-            # ======================================================================
             # Count correct predictions overall
             correct += pred.eq(target.view_as(pred)).sum().item()
 
+        # Calculate and print training loss and accuracy
         train_loss = float(np.mean(losses))
         train_acc = (100. * correct) / ((batch_idx + 1) * batch_size * 40)
         print('Train set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
@@ -118,16 +110,15 @@ class Trainer:
                 # Append loss to overall test loss
                 losses.append(loss.item())
 
-                # Get predicted index by selecting maximum log-probability
+                # Get predicted index by rounding the sigmoid output to 0 or 1
                 pred = torch.round(output)
 
-                # ======================================================================
                 # Count correct predictions overall
                 correct += pred.eq(target.view_as(pred)).sum().item()
 
+        # Calculate and print training loss and accuracy
         test_loss = float(np.mean(losses))
         accuracy = (100. * correct) / (40*(len(test_loader.dataset)))
-
         print('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
             test_loss, correct, 40*(len(test_loader.dataset)), accuracy))
 
@@ -153,14 +144,13 @@ class Trainer:
         test_accuracies = []
         
         # Initialize the model and send to device
-        model = ConvNet(self.FLAGS.mode).to(device)
+        model = ConvNet().to(device)
 
         # Initialize the criterion for loss computation
         criterion = nn.BCEWithLogitsLoss()
 
         # Initialize optimizer type
         optimizer = optim.Adam(model.parameters())
-                                    #lr=self.FLAGS.learning_rate, weight_decay=1e-7)
 
         train_loader = DataLoader(dataset1,
                                     batch_size=self.FLAGS.batch_size,

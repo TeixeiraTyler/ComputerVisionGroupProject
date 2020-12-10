@@ -1,11 +1,10 @@
-import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 # Contains all usable models and their corresponding layers
 class ConvNet(nn.Module):
-    def __init__(self, mode):
+    def __init__(self):
         super(ConvNet, self).__init__()
 
         # Conv, fc, and dropout layers defined here
@@ -24,28 +23,10 @@ class ConvNet(nn.Module):
 
         self.dropout1 = nn.Dropout2d(0.5)
 
-        #self.forward = self.model_1
+        # Use the selected model below
+        self.forward = self.model
 
-        # Choose which CNN model to use
-        if mode == 1:
-            self.forward = self.model_1
-        elif mode == 2:
-            self.forward = self.model_2
-        elif mode == 3:
-            self.forward = self.model_3
-        elif mode == 4:
-            self.forward = self.model_4
-        elif mode == 5:
-            self.forward = self.model_5
-        else: 
-            print("Invalid mode ", mode, "selected. Select between 1-5")
-            exit(0)
-
-
-    # BELOW ARE THE MODELS FROM THE ANSWER TO PROGRAMMING ASSIGNMENT 1 PART 2
-
-    # The main model I am testing. Similar to model_5 from original assignment. Ignore model_2 through model_5
-    def model_1(self, X):
+    def model(self, X):
         '''
         2 convolutional layers and 2 fully connected layers.
         ReLU, sigmoid, max pooling, and dropout involved.
