@@ -1,13 +1,12 @@
-import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
+
 from CNN import ConvNet
+
 
 # Trains and tests model, and outputs losses and accuracies
 class Trainer:
