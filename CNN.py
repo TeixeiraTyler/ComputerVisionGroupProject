@@ -35,24 +35,14 @@ class ConvNet(nn.Module):
         '''
 
         X = F.relu(self.conv1(X))
-        #print(X.size())
         X = F.max_pool2d(X, 2)
-        #print(X.size())
         X = F.relu(self.conv2(X))
-        #print(X.size())
         X = F.max_pool2d(X, 2)
-        #print(X.size())
         X = torch.flatten(X, start_dim=1)
-        #print(X.size())
         X = F.relu(self.fc1(X))
-        #print(X.size())
         X = self.dropout1(X)
-        #print(X.size())
         X = F.relu(self.fc2(X))
-        #print(X.size())
         X = self.dropout1(X)
-        #print(X.size())
         X = torch.sigmoid(self.fc3(X))
-        #print(X.size())
 
         return X
